@@ -12,7 +12,7 @@ interface ITodo {
   user_id: string;
   title: string;
   done: boolean;
-  deadline: Date;
+  deadline: string;
 }
 
 export const handle: APIGatewayProxyHandler = async (event) => {
@@ -24,7 +24,7 @@ export const handle: APIGatewayProxyHandler = async (event) => {
     user_id,
     title,
     done: false,
-    deadline: new Date(deadline),
+    deadline: new Date(deadline).toISOString(),
   };
 
   await document

@@ -48,6 +48,20 @@ functions:
           - dynamodb:Query
           - dynamodb:PutItem
         Resource: "arn:aws:dynamodb:${self.provider.region}:*:table/users_todos"
+  
+  getTodosByUser:
+    handler: src/functions/getTodosByUser.handle
+    events:
+      - http:
+          path: /todos/{user_id}
+          method: GET
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: "arn:aws:dynamodb:${self.provider.region}:*:table/users_todos"
+
 
 resources:
   Resources:
@@ -61,6 +75,19 @@ resources:
           AttributeDefinitions:
             - AttributeName: id
               AttributeType: S
+            - AttributeName: user_id
+              AttributeType: S
           KeySchema:
             - AttributeName: id
               KeyType: HASH
+          GlobalSecondaryIndexes:
+            - IndexName: UserIdIndex
+              KeySchema:
+                - AttributeName: user_id
+                  KeyType: HASH
+              Projection:
+                ProjectionType: 'ALL'
+              ProvisionedThroughput:
+                ReadCapacityUnits: '5'
+                WriteCapacityUnits: '5'
+
