@@ -1,9 +1,9 @@
-service: 
-  name: serverless-todo-app
+service: serverless-todo-app
 
 plugins:
   - serverless-offline  
   - serverless-webpack
+  - serverless-iam-roles-per-function
   - serverless-dynamodb-local
 
 custom:
@@ -34,6 +34,20 @@ provider:
           - s3:*
         Resource: "*" 
 
+functions:
+  createTodo:
+    handler: src/functions/createTodo.handle
+    events:
+      - http:
+          path: /todos/{user_id}
+          method: POST
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:PutItem
+        Resource: "arn:aws:dynamodb:${self.provider.region}:*:table/users_todos"
 
 resources:
   Resources:
